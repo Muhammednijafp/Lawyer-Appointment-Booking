@@ -12,7 +12,7 @@ function Login() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
 
-  // ✅ Read redirect param from URL
+  // Read redirect param from URL
   const params = new URLSearchParams(location.search)
   const redirectTo = params.get("redirect") || "/dashboard"
 
@@ -23,7 +23,7 @@ function Login() {
       return
     }
     setLoading(true)
-    const { success, error } = await loginUser(username, password)
+    const { success, error } = await loginUser(username.trim(), password)
     setLoading(false)
 
     if (success) {
@@ -34,37 +34,77 @@ function Login() {
   }
 
   return (
-    <div className="vh-100 d-flex justify-content-center align-items-center bg-light">
+    <div className="auth-container">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      <div className="card shadow-lg p-4" style={{ width: "420px", borderRadius: "16px" }}>
+      <div className="auth-box">
+        {/* Header */}
         <div className="text-center mb-4">
-          <h2 className="fw-bold">⚖️</h2>
-          <h4 className="fw-bold mb-1">Welcome Back</h4>
-          <small className="text-muted">Law Management System</small>
+          <div
+            className="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+            style={{ width: 56, height: 56, background: "rgba(24, 95, 165, 0.1)", fontSize: 28 }}
+          >
+            ⚖️
+          </div>
+          <h3 className="fw-bold mb-1 text-dark" style={{ letterSpacing: "-0.02em" }}>Welcome Back</h3>
+          <p className="text-muted small mb-0">Sign in to manage your legal matters, consultations & cases</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label fw-semibold">Username</label>
-            <input className="form-control" placeholder="Enter your username"
-              value={username} onChange={(e) => setUsername(e.target.value)} required autoFocus />
+            <label className="form-label small fw-semibold text-secondary mb-1">Username</label>
+            <input
+              className="form-control"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoFocus
+            />
           </div>
+
           <div className="mb-4">
-            <label className="form-label fw-semibold">Password</label>
-            <input type="password" className="form-control" placeholder="Enter your password"
-              value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label small fw-semibold text-secondary mb-0">Password</label>
+            </div>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
-          <button type="submit" className="btn btn-primary w-100 py-2 fw-semibold" disabled={loading}>
-            {loading ? <><span className="spinner-border spinner-border-sm me-2" />Logging in...</> : "Login"}
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+            disabled={loading}
+            style={{ borderRadius: "10px", background: "var(--color-primary)", borderColor: "var(--color-primary)" }}
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm" />
+                <span>Signing in...</span>
+              </>
+            ) : (
+              <span>Sign In to Dashboard</span>
+            )}
           </button>
-          <p className="text-center mt-3 mb-0 text-muted">
+
+          <p className="text-center mt-3 mb-0 text-muted small">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary fw-semibold">Register</Link>
+            <Link to="/register" className="text-primary fw-bold text-decoration-none">
+              Register now
+            </Link>
           </p>
-          <p className="text-center mt-2 mb-0">
-            <Link to="/" style={{ fontSize: 13, color: "#888" }}>← Back to Home</Link>
-          </p>
+
+          <div className="text-center mt-2">
+            <Link to="/" className="text-secondary small text-decoration-none">
+              ← Return to Home
+            </Link>
+          </div>
         </form>
       </div>
     </div>

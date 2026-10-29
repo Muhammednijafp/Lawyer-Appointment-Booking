@@ -47,6 +47,13 @@ class LawyerProfile(models.Model):
         ('Constitutional', 'Constitutional Law'),
     )
 
+    VERIFICATION_STATUS_CHOICES = (
+        ('NOT_APPLIED', 'Not Applied'),
+        ('PENDING', 'Pending Verification'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -54,6 +61,21 @@ class LawyerProfile(models.Model):
     )
 
     bar_council_number = models.CharField(max_length=50, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+    verification_status = models.CharField(
+        max_length=20,
+        choices=VERIFICATION_STATUS_CHOICES,
+        default='NOT_APPLIED'
+    )
+    bar_council_document = models.FileField(
+        upload_to='bar_council_docs/',
+        blank=True,
+        null=True
+    )
+    verification_notes = models.TextField(blank=True, null=True)
+    applied_at = models.DateTimeField(blank=True, null=True)
+    verified_at = models.DateTimeField(blank=True, null=True)
+
     specialization = models.CharField(
         max_length=50,
         choices=SPECIALIZATION_CHOICES,
@@ -94,7 +116,7 @@ class LawyerProfile(models.Model):
         self.save()
 
     def __str__(self):
-        return f"Profile of {self.user.username}"
+        return f"Profile of {self.user.username} ({self.verification_status})"
 
 
 class Review(models.Model):

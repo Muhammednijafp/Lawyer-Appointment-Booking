@@ -1,7 +1,12 @@
 import { useEffect, useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
-import { getMyLawyerProfile, updateMyLawyerProfile, updateCurrentUser } from "../api/fetchApi"
+import {
+  getMyLawyerProfile,
+  updateMyLawyerProfile,
+  updateCurrentUser,
+  applyForLawyerListing,
+} from "../api/fetchApi"
 import DashboardLayout from "../layouts/DashboardLayout"
 import { toast, ToastContainer } from "react-toastify"
 
@@ -11,6 +16,7 @@ function LawyerProfileEditPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [applying, setApplying] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
 
   const [profile, setProfile] = useState({
@@ -23,6 +29,10 @@ function LawyerProfileEditPage() {
     state: "",
     city: "",
     is_available: true,
+    is_verified: false,
+    verification_status: "NOT_APPLIED",
+    verification_notes: "",
+    applied_at: null,
   })
 
   const [account, setAccount] = useState({
@@ -34,7 +44,10 @@ function LawyerProfileEditPage() {
   const [previewImage, setPreviewImage] = useState(null)
 
   useEffect(() => {
-    if (user?.role !== "LAWYER") { navigate("/dashboard"); return }
+    if (user?.role !== "LAWYER") {
+      navigate("/dashboard")
+      return
+    }
     loadProfile()
   }, [])
 
@@ -45,19 +58,23 @@ function LawyerProfileEditPage() {
       const d = res.data
       setProfile({
         bar_council_number: d.bar_council_number || "",
-        specialization: d.specialization || "",
-        court_level: d.court_level || "",
-        experience_years: d.experience_years || "",
-        consultation_fee: d.consultation_fee || "",
+        specialization: d.specialization || "Civil",
+        court_level: d.court_level || "High",
+        experience_years: d.experience_years || 0,
+        consultation_fee: d.consultation_fee || 0,
         bio: d.bio || "",
         state: d.state || "",
         city: d.city || "",
         is_available: d.is_available ?? true,
+        is_verified: d.is_verified ?? false,
+        verification_status: d.verification_status || "NOT_APPLIED",
+        verification_notes: d.verification_notes || "",
+        applied_at: d.applied_at || null,
       })
       setAccount({ phone: d.phone || "", lawyer_type: d.lawyer_type || "" })
       if (d.profile_image) setPreviewImage(`http://127.0.0.1:8000${d.profile_image}`)
     } catch (err) {
-      toast.error("Failed to load profile.")
+      toast.error("Failed to load advocate profile.")
     }
     setLoading(false)
   }
@@ -71,7 +88,7 @@ function LawyerProfileEditPage() {
     setSaving(true)
     try {
       await updateMyLawyerProfile(profile)
-      toast.success("Profile updated successfully!")
+      toast.success("Profile saved successfully!")
     } catch (err) {
       toast.error(
         err.response?.data?.detail ||
@@ -80,6 +97,31 @@ function LawyerProfileEditPage() {
       )
     }
     setSaving(false)
+  }
+
+  // ✅ Apply for directory listing workflow
+  const handleApplyListing = async () => {
+    if (!profile.bar_council_number?.trim()) {
+      toast.error("Bar Council Enrollment ID (*) is required to apply for listing.")
+      return
+    }
+    setApplying(true)
+    try {
+      const res = await applyForLawyerListing(profile)
+      toast.success("Application submitted for Bar Council verification!")
+      setProfile(prev => ({
+        ...prev,
+        verification_status: "PENDING",
+        applied_at: new Date().toISOString(),
+      }))
+    } catch (err) {
+      toast.error(
+        err.response?.data?.bar_council_number?.[0] ||
+        err.response?.data?.detail ||
+        "Failed to submit listing application."
+      )
+    }
+    setApplying(false)
   }
 
   const handleSaveAccount = async () => {
@@ -91,7 +133,7 @@ function LawyerProfileEditPage() {
       if (profileImage) formData.append("profile_image", profileImage)
       const res = await updateCurrentUser(formData)
       updateUser(res.data)
-      toast.success("Account updated successfully!")
+      toast.success("Account information updated!")
     } catch (err) {
       toast.error(
         err.response?.data?.detail ||
@@ -102,279 +144,450 @@ function LawyerProfileEditPage() {
     setSaving(false)
   }
 
-  const inp = {
-    width: "100%", padding: "10px 14px", borderRadius: 8,
-    border: "0.5px solid var(--color-border-secondary)",
-    background: "var(--color-background-secondary)",
-    color: "var(--color-text-primary)", fontSize: 14, boxSizing: "border-box",
-  }
-  const lbl = {
-    fontSize: 12, fontWeight: 500, color: "var(--color-text-secondary)",
-    display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5,
-  }
-  const sec = {
-    background: "var(--color-background-primary)",
-    border: "0.5px solid var(--color-border-tertiary)",
-    borderRadius: 12, padding: "20px 24px", marginBottom: 20,
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setProfileImage(file)
+      setPreviewImage(URL.createObjectURL(file))
+    }
   }
 
-  if (loading) return (
-    <DashboardLayout>
-      <div style={{ textAlign: "center", padding: "80px 0" }}>
-        <div className="spinner-border spinner-border-sm" />
-      </div>
-    </DashboardLayout>
-  )
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" />
+        </div>
+      </DashboardLayout>
+    )
+  }
 
   return (
     <DashboardLayout>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      {/* Top Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h4 style={{ fontWeight: 500, margin: "0 0 4px" }}>Edit Profile</h4>
-          <small style={{ color: "var(--color-text-secondary)" }}>
-            Your profile is visible to all clients browsing lawyers
+          <h4 className="fw-bold mb-1 text-dark" style={{ letterSpacing: "-0.02em" }}>
+            Advocate Profile & Bar Verification
+          </h4>
+          <small className="text-muted">
+            Manage your public directory credentials, specialization, fee structure, and Bar Council verification.
           </small>
         </div>
-        <button onClick={() => navigate(`/lawyers/${user?.id}`)} style={{
-          padding: "8px 16px", borderRadius: 8, fontSize: 13,
-          border: "0.5px solid var(--color-border-secondary)",
-          background: "transparent", color: "var(--color-text-primary)", cursor: "pointer",
-        }}>
+        <button
+          onClick={() => navigate(`/lawyers/${user?.id}`)}
+          className="btn btn-sm btn-outline-primary fw-semibold px-3 py-1.5 rounded-pill"
+        >
           View Public Profile →
         </button>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, borderBottom: "0.5px solid var(--color-border-tertiary)", marginBottom: 24 }}>
-        {[{ key: "profile", label: "Professional Info" }, { key: "account", label: "Account & Photo" }].map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-            padding: "8px 20px", fontSize: 13, cursor: "pointer",
-            background: "transparent", border: "none",
-            borderBottom: activeTab === tab.key ? "2px solid #185FA5" : "2px solid transparent",
-            color: activeTab === tab.key ? "#185FA5" : "var(--color-text-secondary)",
-            fontWeight: activeTab === tab.key ? 500 : 400,
-          }}>
-            {tab.label}
-          </button>
-        ))}
+      {/* ── BAR COUNCIL VERIFICATION STATUS CARD ───────────────────────── */}
+      <div
+        className="law-card p-4 mb-4"
+        style={{
+          borderLeft: `5px solid ${
+            profile.is_verified || profile.verification_status === "APPROVED"
+              ? "#10B981"
+              : profile.verification_status === "PENDING"
+              ? "#F59E0B"
+              : profile.verification_status === "REJECTED"
+              ? "#EF4444"
+              : "var(--color-gold)"
+          }`,
+        }}
+      >
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div className="d-flex align-items-center gap-3">
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center"
+              style={{
+                width: 50,
+                height: 50,
+                fontSize: 24,
+                background:
+                  profile.is_verified
+                    ? "rgba(16, 185, 129, 0.15)"
+                    : profile.verification_status === "PENDING"
+                    ? "rgba(245, 158, 11, 0.15)"
+                    : "rgba(197, 168, 128, 0.2)",
+              }}
+            >
+              {profile.is_verified ? "🛡️" : profile.verification_status === "PENDING" ? "⏳" : "📜"}
+            </div>
+
+            <div>
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <h5 className="fw-bold mb-0 text-dark">
+                  Bar Council Verification:{" "}
+                  <span
+                    className={
+                      profile.is_verified
+                        ? "text-success"
+                        : profile.verification_status === "PENDING"
+                        ? "text-warning"
+                        : profile.verification_status === "REJECTED"
+                        ? "text-danger"
+                        : "text-secondary"
+                    }
+                  >
+                    {profile.is_verified || profile.verification_status === "APPROVED"
+                      ? "Verified Advocate ✓"
+                      : profile.verification_status === "PENDING"
+                      ? "Pending Verification"
+                      : profile.verification_status === "REJECTED"
+                      ? "Verification Rejected"
+                      : "Not Yet Applied"}
+                  </span>
+                </h5>
+              </div>
+
+              <div className="text-secondary small">
+                Enrollment ID: <strong>{profile.bar_council_number || "Not Registered"}</strong> ·{" "}
+                {profile.is_verified
+                  ? "Your credentials are confirmed and your profile is actively listed in the public directory."
+                  : profile.verification_status === "PENDING"
+                  ? "Your application is under review by the Bar Council Admin. You will be notified once approved."
+                  : profile.verification_status === "REJECTED"
+                  ? `Reason: ${profile.verification_notes || "Bar Council ID could not be validated. Please check and re-apply."}`
+                  : "Submit your application below to get verified and listed in the public advocate directory."}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {!profile.is_verified && profile.verification_status !== "PENDING" ? (
+              <button
+                onClick={handleApplyListing}
+                disabled={applying}
+                className="btn btn-law-gold text-white fw-bold d-flex align-items-center gap-2"
+              >
+                {applying ? "Submitting..." : "Apply for Directory Listing 🚀"}
+              </button>
+            ) : profile.verification_status === "PENDING" ? (
+              <span className="badge bg-warning text-dark px-3 py-2 fs-6">
+                ⏳ Under Admin Review
+              </span>
+            ) : (
+              <span className="badge bg-success px-3 py-2 fs-6">
+                ✓ Directory Listed & Active
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ── Professional Info ─────────────────────────── */}
+      {/* Navigation Tabs */}
+      <div className="d-flex gap-2 border-bottom mb-4">
+        <button
+          onClick={() => setActiveTab("profile")}
+          className={`btn btn-sm pb-2 fw-bold rounded-0 border-0 ${
+            activeTab === "profile"
+              ? "text-primary border-bottom border-primary border-3"
+              : "text-secondary"
+          }`}
+        >
+          Professional Details & Bar Credentials
+        </button>
+        <button
+          onClick={() => setActiveTab("account")}
+          className={`btn btn-sm pb-2 fw-bold rounded-0 border-0 ${
+            activeTab === "account"
+              ? "text-primary border-bottom border-primary border-3"
+              : "text-secondary"
+          }`}
+        >
+          Account, Photo & Contact
+        </button>
+      </div>
+
+      {/* ── Tab 1: Professional Details ─────────────────────────────────── */}
       {activeTab === "profile" && (
-        <>
-          {/* Availability toggle */}
-          <div style={sec}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>Availability Status</div>
-                <div style={{ fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>
-                  Toggle whether you are accepting new clients
+        <div className="row g-4">
+          <div className="col-lg-8">
+            <div className="law-card p-4 mb-4">
+              <h6 className="fw-bold text-dark mb-3">Official Credentials</h6>
+
+              <div className="row g-3 mb-3">
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Bar Council Enrollment ID <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    name="bar_council_number"
+                    value={profile.bar_council_number}
+                    onChange={handleProfileChange}
+                    placeholder="e.g. K/1234/2020"
+                    className="form-control"
+                    required
+                  />
+                  <small className="text-muted" style={{ fontSize: "11px" }}>
+                    Registered license number with State Bar Council.
+                  </small>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Specialization
+                  </label>
+                  <select
+                    name="specialization"
+                    value={profile.specialization}
+                    onChange={handleProfileChange}
+                    className="form-select"
+                  >
+                    <option value="Criminal">Criminal Law</option>
+                    <option value="Civil">Civil Law</option>
+                    <option value="Family">Family Law</option>
+                    <option value="Property">Property Law</option>
+                    <option value="Corporate">Corporate Law</option>
+                    <option value="Labour">Labour Law</option>
+                    <option value="Tax">Tax Law</option>
+                    <option value="Constitutional">Constitutional Law</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Primary Court Level
+                  </label>
+                  <select
+                    name="court_level"
+                    value={profile.court_level}
+                    onChange={handleProfileChange}
+                    className="form-select"
+                  >
+                    <option value="District">District Court</option>
+                    <option value="High">High Court</option>
+                    <option value="Supreme">Supreme Court</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Experience (Years)
+                  </label>
+                  <input
+                    name="experience_years"
+                    type="number"
+                    min="0"
+                    max="60"
+                    value={profile.experience_years}
+                    onChange={handleProfileChange}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Consultation Fee (₹)
+                  </label>
+                  <input
+                    name="consultation_fee"
+                    type="number"
+                    min="0"
+                    step="100"
+                    value={profile.consultation_fee}
+                    onChange={handleProfileChange}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    City
+                  </label>
+                  <input
+                    name="city"
+                    value={profile.city}
+                    onChange={handleProfileChange}
+                    placeholder="e.g. Kochi, Mumbai"
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    State
+                  </label>
+                  <select
+                    name="state"
+                    value={profile.state}
+                    onChange={handleProfileChange}
+                    className="form-select"
+                  >
+                    <option value="">Select state</option>
+                    {[
+                      "Kerala", "Tamil Nadu", "Karnataka", "Andhra Pradesh", "Maharashtra", "Delhi",
+                      "Gujarat", "Rajasthan", "Uttar Pradesh", "West Bengal", "Madhya Pradesh",
+                      "Bihar", "Odisha", "Punjab", "Haryana", "Telangana", "Jharkhand", "Assam",
+                    ].map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Advocate Biography & Practice Overview
+                  </label>
+                  <textarea
+                    name="bio"
+                    value={profile.bio}
+                    onChange={handleProfileChange}
+                    rows="4"
+                    placeholder="Describe your legal background, major cases handled, and areas of expertise..."
+                    className="form-control"
+                  />
+                  <small className="text-muted" style={{ fontSize: "11px" }}>
+                    Visible to citizens when browsing advocate profiles.
+                  </small>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div onClick={() => setProfile(prev => ({ ...prev, is_available: !prev.is_available }))}
-                  style={{
-                    width: 48, height: 26, borderRadius: 13, cursor: "pointer",
-                    background: profile.is_available ? "#1D9E75" : "#ccc",
-                    position: "relative", transition: "background 0.2s",
-                  }}>
-                  <div style={{
-                    width: 20, height: 20, borderRadius: "50%", background: "#fff",
-                    position: "absolute", top: 3, left: profile.is_available ? 24 : 4,
-                    transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
-                  }} />
-                </div>
-                <span style={{ fontSize: 13, fontWeight: 500, color: profile.is_available ? "#0F6E56" : "var(--color-text-secondary)" }}>
-                  {profile.is_available ? "Available" : "Not Available"}
-                </span>
+
+              <div className="d-flex justify-content-end gap-2 pt-3 border-top">
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  disabled={saving}
+                  className="btn btn-primary px-4 fw-bold"
+                >
+                  {saving ? "Saving Changes..." : "Save Profile Details"}
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Professional details */}
-          <div style={sec}>
-            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 20 }}>Professional Details</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-
-              <div>
-                <label style={lbl}>Bar Council Number</label>
-                <input name="bar_council_number" value={profile.bar_council_number}
-                  onChange={handleProfileChange} placeholder="e.g. KL/1234/2010" style={inp} />
-              </div>
-
-              <div>
-                <label style={lbl}>Specialization</label>
-                <select name="specialization" value={profile.specialization}
-                  onChange={handleProfileChange} style={inp}>
-                  <option value="">Select specialization</option>
-                  {["Criminal","Civil","Family","Property","Corporate","Labour","Tax","Constitutional"].map(s => (
-                    <option key={s} value={s}>{s} Law</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={lbl}>Court Level</label>
-                <select name="court_level" value={profile.court_level}
-                  onChange={handleProfileChange} style={inp}>
-                  <option value="">Select court level</option>
-                  <option value="District">District Court</option>
-                  <option value="High">High Court</option>
-                  <option value="Supreme">Supreme Court</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={lbl}>Years of Experience</label>
-                <input name="experience_years" type="number" min="0" max="60"
-                  value={profile.experience_years} onChange={handleProfileChange}
-                  placeholder="e.g. 5" style={inp} />
-              </div>
-
-              <div>
-                <label style={lbl}>Consultation Fee (₹)</label>
-                <input name="consultation_fee" type="number" min="0"
-                  value={profile.consultation_fee} onChange={handleProfileChange}
-                  placeholder="e.g. 2000" style={inp} />
-              </div>
-
-              <div>
-                <label style={lbl}>City</label>
-                <input name="city" value={profile.city}
-                  onChange={handleProfileChange} placeholder="e.g. Kochi" style={inp} />
-              </div>
-
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={lbl}>State</label>
-                <select name="state" value={profile.state} onChange={handleProfileChange} style={inp}>
-                  <option value="">Select state</option>
-                  {["Kerala","Tamil Nadu","Karnataka","Andhra Pradesh","Maharashtra","Delhi","Gujarat",
-                    "Rajasthan","Uttar Pradesh","West Bengal","Madhya Pradesh","Bihar","Odisha",
-                    "Punjab","Haryana","Telangana","Jharkhand","Assam","Himachal Pradesh","Goa"].map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={lbl}>Bio / About You</label>
-                <textarea name="bio" value={profile.bio} onChange={handleProfileChange}
-                  placeholder="Tell clients about your experience, expertise and approach..."
-                  rows={4} style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
-                <small style={{ color: "var(--color-text-tertiary)", fontSize: 11 }}>
-                  {profile.bio.length}/500 characters
-                </small>
-              </div>
-
-            </div>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-            <button onClick={loadProfile} style={{
-              padding: "10px 20px", borderRadius: 8, fontSize: 13,
-              border: "0.5px solid var(--color-border-secondary)",
-              background: "transparent", color: "var(--color-text-secondary)", cursor: "pointer",
-            }}>Reset</button>
-            <button onClick={handleSaveProfile} disabled={saving} style={{
-              padding: "10px 24px", borderRadius: 8, fontSize: 13,
-              background: "#185FA5", color: "#fff", border: "none",
-              cursor: saving ? "not-allowed" : "pointer", fontWeight: 500,
-            }}>
-              {saving ? "Saving..." : "Save Profile"}
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* ── Account & Photo ───────────────────────────── */}
-      {activeTab === "account" && (
-        <>
-          {/* Photo */}
-          <div style={sec}>
-            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 20 }}>Profile Photo</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-              <div style={{
-                width: 90, height: 90, borderRadius: "50%", flexShrink: 0,
-                background: "#E6F1FB", overflow: "hidden",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 32, fontWeight: 500, color: "#0C447C",
-                border: "3px solid var(--color-border-secondary)",
-              }}>
-                {previewImage
-                  ? <img src={previewImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  : user?.username?.[0]?.toUpperCase()}
-              </div>
-              <div>
-                <label style={{
-                  padding: "9px 18px", borderRadius: 8, fontSize: 13,
-                  background: "#185FA5", color: "#fff", cursor: "pointer",
-                  display: "inline-block", fontWeight: 500,
-                }}>
-                  Choose Photo
-                  <input type="file" accept="image/*" onChange={e => {
-                    const f = e.target.files[0]
-                    if (f) { setProfileImage(f); setPreviewImage(URL.createObjectURL(f)) }
-                  }} style={{ display: "none" }} />
+          <div className="col-lg-4">
+            {/* Availability Toggle */}
+            <div className="law-card p-4 mb-4">
+              <h6 className="fw-bold text-dark mb-2">Consultation Availability</h6>
+              <p className="text-muted small mb-3">
+                Control whether clients can currently request appointments with you.
+              </p>
+              <div className="form-check form-switch fs-5 mb-2">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  checked={profile.is_available}
+                  onChange={e => setProfile(p => ({ ...p, is_available: e.target.checked }))}
+                />
+                <label className="form-check-label fs-6 fw-bold ms-2 text-dark">
+                  {profile.is_available ? "Accepting Consultations" : "Currently Unavailable"}
                 </label>
-                <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginTop: 8 }}>JPG, PNG. Max 2MB.</div>
-                {profileImage && <div style={{ fontSize: 12, color: "#0F6E56", marginTop: 4 }}>✓ {profileImage.name}</div>}
               </div>
             </div>
+
+            {/* Verification Checklist */}
+            <div className="law-card p-4">
+              <h6 className="fw-bold text-dark mb-3">Directory Verification Steps</h6>
+              <ul className="list-unstyled small text-secondary d-flex flex-column gap-2 mb-0">
+                <li className="d-flex align-items-center gap-2">
+                  <span className={profile.bar_council_number ? "text-success" : "text-muted"}>
+                    {profile.bar_council_number ? "✓" : "○"}
+                  </span>
+                  <span>Provide Bar Council ID (*)</span>
+                </li>
+                <li className="d-flex align-items-center gap-2">
+                  <span className={profile.specialization && profile.court_level ? "text-success" : "text-muted"}>
+                    {profile.specialization && profile.court_level ? "✓" : "○"}
+                  </span>
+                  <span>Set Specialization & Court</span>
+                </li>
+                <li className="d-flex align-items-center gap-2">
+                  <span className={profile.bio ? "text-success" : "text-muted"}>
+                    {profile.bio ? "✓" : "○"}
+                  </span>
+                  <span>Add Professional Bio</span>
+                </li>
+                <li className="d-flex align-items-center gap-2">
+                  <span className={profile.is_verified ? "text-success" : "text-muted"}>
+                    {profile.is_verified ? "✓" : "○"}
+                  </span>
+                  <span>Admin Bar Council Verification</span>
+                </li>
+              </ul>
+            </div>
           </div>
+        </div>
+      )}
 
-          {/* Account details */}
-          <div style={sec}>
-            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 20 }}>Account Details</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      {/* ── Tab 2: Account & Photo ──────────────────────────────────────── */}
+      {activeTab === "account" && (
+        <div className="row g-4">
+          <div className="col-lg-7">
+            <div className="law-card p-4">
+              <h6 className="fw-bold text-dark mb-3">Profile Photo & Contact</h6>
 
-              <div>
-                <label style={lbl}>Username</label>
-                <input value={user?.username || ""} disabled style={{ ...inp, opacity: 0.6, cursor: "not-allowed" }} />
-                <small style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>Cannot be changed</small>
+              <div className="d-flex align-items-center gap-4 mb-4">
+                <div
+                  className="rounded-circle overflow-hidden shadow-sm d-flex align-items-center justify-content-center text-white fw-bold"
+                  style={{
+                    width: 80,
+                    height: 80,
+                    fontSize: 32,
+                    background: "linear-gradient(135deg, #0A1128 0%, #185FA5 100%)",
+                  }}
+                >
+                  {previewImage ? (
+                    <img src={previewImage} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    user?.username?.[0]?.toUpperCase()
+                  )}
+                </div>
+
+                <div>
+                  <label className="form-label small fw-bold text-dark mb-1">Change Profile Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="form-control form-control-sm"
+                  />
+                  <small className="text-muted d-block mt-1">Recommended: square JPG or PNG</small>
+                </div>
               </div>
 
-              <div>
-                <label style={lbl}>Email</label>
-                <input value={user?.email || ""} disabled style={{ ...inp, opacity: 0.6, cursor: "not-allowed" }} />
-                <small style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>Contact support to change</small>
+              <div className="mb-3">
+                <label className="form-label small fw-bold text-secondary mb-1">Contact Phone</label>
+                <input
+                  value={account.phone}
+                  onChange={e => setAccount(p => ({ ...p, phone: e.target.value }))}
+                  placeholder="+91 98765 43210"
+                  className="form-control"
+                />
               </div>
 
-              <div>
-                <label style={lbl}>Phone Number</label>
-                <input name="phone" type="tel" value={account.phone}
-                  onChange={e => setAccount(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="+91 98765 43210" style={inp} />
-              </div>
-
-              <div>
-                <label style={lbl}>Lawyer Type</label>
-                <select name="lawyer_type" value={account.lawyer_type}
-                  onChange={e => setAccount(prev => ({ ...prev, lawyer_type: e.target.value }))}
-                  style={inp}>
-                  <option value="">Select type</option>
-                  <option value="Junior">Junior Lawyer</option>
-                  <option value="Senior">Senior Lawyer</option>
+              <div className="mb-4">
+                <label className="form-label small fw-bold text-secondary mb-1">Advocate Seniority</label>
+                <select
+                  value={account.lawyer_type}
+                  onChange={e => setAccount(p => ({ ...p, lawyer_type: e.target.value }))}
+                  className="form-select"
+                >
+                  <option value="">Select seniority</option>
+                  <option value="Junior">Junior Advocate</option>
+                  <option value="Senior">Senior Advocate</option>
                 </select>
               </div>
 
+              <div className="d-flex justify-content-end">
+                <button
+                  type="button"
+                  onClick={handleSaveAccount}
+                  disabled={saving}
+                  className="btn btn-primary px-4 fw-bold"
+                >
+                  {saving ? "Saving..." : "Update Account Info"}
+                </button>
+              </div>
             </div>
           </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button onClick={handleSaveAccount} disabled={saving} style={{
-              padding: "10px 24px", borderRadius: 8, fontSize: 13,
-              background: "#185FA5", color: "#fff", border: "none",
-              cursor: saving ? "not-allowed" : "pointer", fontWeight: 500,
-            }}>
-              {saving ? "Saving..." : "Save Account"}
-            </button>
-          </div>
-        </>
+        </div>
       )}
-
     </DashboardLayout>
   )
 }

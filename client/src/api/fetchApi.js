@@ -17,7 +17,7 @@ export const getCurrentUser = () =>
 export const updateCurrentUser = (data) =>
     commonApi("accounts/me/", "PATCH", data)
 
-// ─── LAWYER DIRECTORY ─────────────────────────────────────────────────────
+// ─── LAWYER DIRECTORY & VERIFICATION ──────────────────────────────────────
 export const getLawyers = (params = {}) => {
     const query = new URLSearchParams(params).toString()
     return commonApi(`accounts/lawyers/${query ? "?" + query : ""}`, "GET")
@@ -31,6 +31,12 @@ export const getMyLawyerProfile = () =>
 
 export const updateMyLawyerProfile = (data) =>
     commonApi("accounts/lawyers/profile/", "PATCH", data)
+
+export const applyForLawyerListing = (data) =>
+    commonApi("accounts/lawyers/apply-listing/", "POST", data)
+
+export const verifyLawyer = (userId, data) =>
+    commonApi(`accounts/lawyers/${userId}/verify/`, "POST", data)
 
 export const submitReview = (userId, data) =>
     commonApi(`accounts/lawyers/${userId}/review/`, "POST", data)

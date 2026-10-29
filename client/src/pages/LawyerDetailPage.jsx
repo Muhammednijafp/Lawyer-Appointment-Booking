@@ -8,13 +8,26 @@ function StarRating({ rating, interactive = false, onChange }) {
   return (
     <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
       {[1, 2, 3, 4, 5].map(star => (
-        <span key={star}
+        <span
+          key={star}
           onClick={() => interactive && onChange?.(star)}
           onMouseEnter={() => interactive && setHover(star)}
           onMouseLeave={() => interactive && setHover(0)}
-          style={{ fontSize: interactive ? 28 : 14, cursor: interactive ? "pointer" : "default", color: star <= (hover || Math.round(rating)) ? "#BA7517" : "#D3D1C7", transition: "color 0.1s" }}>★</span>
+          style={{
+            fontSize: interactive ? 28 : 14,
+            cursor: interactive ? "pointer" : "default",
+            color: star <= (hover || Math.round(rating)) ? "#BA7517" : "#CBD5E1",
+            transition: "color 0.1s",
+          }}
+        >
+          ★
+        </span>
       ))}
-      {!interactive && <span style={{ fontSize: 12, color: "#888780", marginLeft: 4 }}>{parseFloat(rating || 0).toFixed(1)}</span>}
+      {!interactive && (
+        <span style={{ fontSize: 13, color: "#64748B", marginLeft: 4, fontWeight: 600 }}>
+          {parseFloat(rating || 0).toFixed(1)}
+        </span>
+      )}
     </div>
   )
 }
@@ -39,7 +52,9 @@ function LawyerDetailPage() {
       try {
         const res = await getLawyerById(userId)
         setLawyer(res.data)
-      } catch (err) { setError("Lawyer not found.") }
+      } catch (err) {
+        setError("Advocate not found or profile is unavailable.")
+      }
       setLoading(false)
     }
     load()
@@ -48,7 +63,6 @@ function LawyerDetailPage() {
   const handleBook = () => {
     const appointmentUrl = `/appointments?lawyer=${userId}&name=${lawyer.username}`
     if (!user) {
-      // ✅ Redirect to /login with redirect back to appointments
       navigate(`/login?redirect=${encodeURIComponent(appointmentUrl)}`)
     } else {
       navigate(appointmentUrl)
@@ -56,7 +70,10 @@ function LawyerDetailPage() {
   }
 
   const handleSubmitReview = async () => {
-    if (!reviewForm.rating) { setReviewError("Please select a rating."); return }
+    if (!reviewForm.rating) {
+      setReviewError("Please select a star rating.")
+      return
+    }
     setSubmittingReview(true)
     setReviewError(null)
     try {
@@ -66,8 +83,10 @@ function LawyerDetailPage() {
       setReviewForm({ rating: 0, comment: "" })
     } catch (err) {
       setReviewError(
-        err.response?.data?.error || err.response?.data?.detail ||
-        Object.values(err.response?.data || {})?.[0]?.[0] || "Failed to submit review."
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        Object.values(err.response?.data || {})?.[0]?.[0] ||
+        "Failed to submit review."
       )
     }
     setSubmittingReview(false)
@@ -75,211 +94,319 @@ function LawyerDetailPage() {
 
   const winRate = lawyer?.total_cases > 0 ? Math.round((lawyer.cases_won / lawyer.total_cases) * 100) : 0
 
-  if (loading) return (
-    <div style={{ minHeight: "100vh", background: "var(--color-background-tertiary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div className="spinner-border" />
-    </div>
-  )
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--color-background-secondary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="spinner-border text-primary" />
+      </div>
+    )
+  }
 
-  if (error) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ color: "var(--color-text-danger)" }}>{error}</div>
-    </div>
-  )
+  if (error || !lawyer) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+        <div className="text-danger fw-bold">{error || "Advocate not found."}</div>
+        <button onClick={() => navigate("/lawyers")} className="btn btn-sm btn-primary">
+          ← Back to Advocates Directory
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-background-tertiary)" }}>
-
-      {/* Public navbar */}
-      <div style={{
-        background: "var(--color-background-primary)",
-        borderBottom: "0.5px solid var(--color-border-tertiary)",
-        padding: "0 32px", height: 60,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 100,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <button onClick={() => navigate("/lawyers")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-secondary)", fontSize: 13 }}>← Back</button>
-          <Link to="/" style={{ fontSize: 16, fontWeight: 500, textDecoration: "none", color: "var(--color-text-primary)" }}>⚖️ LawSystem</Link>
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--color-background-secondary)" }}>
+      {/* Top Navbar */}
+      <div
+        className="px-4 py-3 d-flex align-items-center justify-content-between sticky-top"
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid var(--color-border-primary)",
+        }}
+      >
+        <div className="d-flex align-items-center gap-3">
+          <button onClick={() => navigate("/lawyers")} className="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            ← Directory
+          </button>
+          <Link to="/" className="text-decoration-none fw-bold text-dark fs-5">
+            ⚖️ LexCore
+          </Link>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
+
+        <div>
           {user ? (
-            <button onClick={() => navigate("/dashboard")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, background: "#185FA5", color: "#fff", border: "none", cursor: "pointer" }}>Dashboard</button>
+            <button onClick={() => navigate("/dashboard")} className="btn btn-sm btn-primary px-3 py-1.5 rounded-pill">
+              Dashboard →
+            </button>
           ) : (
-            <>
-              <Link to="/login" style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, border: "0.5px solid var(--color-border-secondary)", color: "var(--color-text-primary)", textDecoration: "none" }}>Login</Link>
-              <Link to="/register" style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, background: "#185FA5", color: "#fff", textDecoration: "none" }}>Register</Link>
-            </>
+            <Link to="/login" className="btn btn-sm btn-primary px-3 py-1.5 rounded-pill">
+              Sign In
+            </Link>
           )}
         </div>
       </div>
 
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 24px" }}>
+      <div className="container py-4" style={{ maxWidth: 940 }}>
+        {/* Profile Card Header */}
+        <div className="law-card overflow-hidden mb-4">
+          <div
+            style={{
+              height: 6,
+              background: lawyer.is_verified
+                ? "linear-gradient(90deg, #10B981 0%, #059669 100%)"
+                : "linear-gradient(90deg, #185FA5 0%, #0EA5E9 100%)",
+            }}
+          />
 
-        {/* Profile header */}
-        <div style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
-          <div style={{ height: 6, background: lawyer.is_available ? "#1D9E75" : "#888780" }} />
-          <div style={{ padding: "24px 28px" }}>
-            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-
-              {/* Avatar */}
-              <div style={{ width: 80, height: 80, borderRadius: "50%", flexShrink: 0, background: "#E6F1FB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 500, color: "#0C447C", overflow: "hidden" }}>
-                {lawyer.profile_image
-                  ? <img src={`http://127.0.0.1:8000${lawyer.profile_image}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  : lawyer.username?.[0]?.toUpperCase()}
+          <div className="p-4">
+            <div className="d-flex flex-wrap gap-4 align-items-start">
+              {/* Profile Image */}
+              <div
+                className="rounded-circle overflow-hidden flex-shrink-0 d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                style={{
+                  width: 90,
+                  height: 90,
+                  fontSize: 36,
+                  background: "linear-gradient(135deg, #0A1128 0%, #185FA5 100%)",
+                }}
+              >
+                {lawyer.profile_image ? (
+                  <img
+                    src={`http://127.0.0.1:8000${lawyer.profile_image}`}
+                    alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  lawyer.username?.[0]?.toUpperCase()
+                )}
               </div>
 
-              {/* Info */}
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
-                  <h4 style={{ margin: 0, fontWeight: 500 }}>Adv. {lawyer.username}</h4>
-                  <span style={{ padding: "3px 12px", borderRadius: 20, fontSize: 11, fontWeight: 500, background: lawyer.is_available ? "#E1F5EE" : "#F1EFE8", color: lawyer.is_available ? "#0F6E56" : "#5F5E5A" }}>
-                    {lawyer.is_available ? "Available" : "Busy"}
+              {/* Bio & Credentials */}
+              <div className="flex-grow-1">
+                <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
+                  <h3 className="fw-bold mb-0 text-dark">Adv. {lawyer.username}</h3>
+                  {lawyer.is_verified ? (
+                    <span className="verified-shield">🛡️ Bar Council Verified</span>
+                  ) : (
+                    <span className="unverified-badge">⚠️ Verification Pending</span>
+                  )}
+                  <span
+                    className="badge rounded-pill"
+                    style={{
+                      background: lawyer.is_available ? "#ECFDF5" : "#F1EFE8",
+                      color: lawyer.is_available ? "#047857" : "#5F5E5A",
+                    }}
+                  >
+                    {lawyer.is_available ? "● Available for Consultations" : "○ Currently Unavailable"}
                   </span>
                 </div>
-                <div style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 8 }}>
-                  {lawyer.specialization || "General Practice"} Law · {lawyer.court_level || "—"} Court · {lawyer.lawyer_type || "—"}
+
+                <div className="text-secondary small mb-2">
+                  <strong>{lawyer.specialization || "General"} Law</strong> · Practicing at{" "}
+                  <strong>{lawyer.court_level || "High"} Court</strong>
+                  {lawyer.bar_council_number && (
+                    <span className="text-dark fw-bold ms-2">
+                      · Bar License No: <code>{lawyer.bar_council_number}</code>
+                    </span>
+                  )}
                 </div>
-                <StarRating rating={lawyer.average_rating || 0} />
-                <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginTop: 4 }}>
-                  {lawyer.total_reviews} review{lawyer.total_reviews !== 1 ? "s" : ""}
-                  {lawyer.city && ` · 📍 ${lawyer.city}${lawyer.state ? `, ${lawyer.state}` : ""}`}
+
+                <div className="d-flex align-items-center gap-3 mb-2">
+                  <StarRating rating={lawyer.average_rating || 0} />
+                  <span className="text-muted small">
+                    ({lawyer.total_reviews} verified client review{lawyer.total_reviews !== 1 ? "s" : ""})
+                  </span>
+                  {(lawyer.city || lawyer.state) && (
+                    <span className="text-secondary small">
+                      📍 {[lawyer.city, lawyer.state].filter(Boolean).join(", ")}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Book */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 160, alignItems: "center" }}>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>CONSULTATION FEE</div>
-                  <div style={{ fontSize: 24, fontWeight: 500 }}>₹{parseFloat(lawyer.consultation_fee || 0).toLocaleString()}</div>
-                </div>
-                <button onClick={handleBook} disabled={!lawyer.is_available} style={{
-                  width: "100%", padding: "10px 20px", borderRadius: 8, fontSize: 13,
-                  background: lawyer.is_available ? "#185FA5" : "var(--color-background-secondary)",
-                  color: lawyer.is_available ? "#fff" : "var(--color-text-tertiary)",
-                  border: "none", cursor: lawyer.is_available ? "pointer" : "not-allowed", fontWeight: 500,
-                }}>
-                  {lawyer.is_available ? "Book Appointment" : "Not Available"}
+              {/* Fee & Action Card */}
+              <div
+                className="p-3 rounded-3 text-center d-flex flex-column gap-2"
+                style={{
+                  background: "var(--color-background-secondary)",
+                  border: "1px solid var(--color-border-primary)",
+                  minWidth: 190,
+                }}
+              >
+                <small className="text-muted d-block fw-semibold" style={{ fontSize: "10px" }}>
+                  CONSULTATION FEE
+                </small>
+                <h3 className="fw-bold text-dark mb-0">
+                  ₹{parseFloat(lawyer.consultation_fee || 0).toLocaleString()}
+                </h3>
+
+                <button
+                  onClick={handleBook}
+                  disabled={!lawyer.is_available}
+                  className="btn btn-sm btn-primary w-100 fw-bold mt-1"
+                  style={{
+                    background: lawyer.is_available ? "var(--color-primary)" : "#CBD5E1",
+                    borderColor: lawyer.is_available ? "var(--color-primary)" : "#CBD5E1",
+                  }}
+                >
+                  {lawyer.is_available ? "Book Appointment" : "Unavailable"}
                 </button>
-                {/* ✅ Show login hint for guests */}
                 {!user && lawyer.is_available && (
-                  <small style={{ color: "var(--color-text-tertiary)", fontSize: 11, textAlign: "center" }}>
-                    You'll be asked to login
+                  <small className="text-muted" style={{ fontSize: "10px" }}>
+                    Sign in required to confirm slot
                   </small>
                 )}
               </div>
             </div>
 
-            {/* Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginTop: 24, paddingTop: 20, borderTop: "0.5px solid var(--color-border-tertiary)" }}>
-              {[
-                { label: "Experience", value: `${lawyer.experience_years} yrs` },
-                { label: "Total Cases", value: lawyer.total_cases },
-                { label: "Cases Won", value: lawyer.cases_won },
-                { label: "Win Rate", value: `${winRate}%`, highlight: winRate >= 70 },
-              ].map(stat => (
-                <div key={stat.label} style={{ textAlign: "center", padding: "12px", background: "var(--color-background-secondary)", borderRadius: 8 }}>
-                  <div style={{ fontSize: 20, fontWeight: 500, color: stat.highlight ? "#0F6E56" : "var(--color-text-primary)" }}>{stat.value}</div>
-                  <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 2 }}>{stat.label}</div>
+            {/* Quick Metrics Grid */}
+            <div className="row g-2 text-center mt-4 pt-3 border-top">
+              <div className="col-3">
+                <div className="p-2 bg-light rounded-3">
+                  <h5 className="fw-bold text-dark mb-0">{lawyer.experience_years || 0} Years</h5>
+                  <small className="text-muted" style={{ fontSize: "11px" }}>Experience</small>
                 </div>
-              ))}
+              </div>
+              <div className="col-3">
+                <div className="p-2 bg-light rounded-3">
+                  <h5 className="fw-bold text-dark mb-0">{lawyer.total_cases || 0}</h5>
+                  <small className="text-muted" style={{ fontSize: "11px" }}>Total Filings</small>
+                </div>
+              </div>
+              <div className="col-3">
+                <div className="p-2 bg-light rounded-3">
+                  <h5 className="fw-bold text-dark mb-0">{lawyer.cases_won || 0}</h5>
+                  <small className="text-muted" style={{ fontSize: "11px" }}>Cases Won</small>
+                </div>
+              </div>
+              <div className="col-3">
+                <div className="p-2 bg-light rounded-3">
+                  <h5 className="fw-bold text-success mb-0">{winRate}%</h5>
+                  <small className="text-muted" style={{ fontSize: "11px" }}>Success Rate</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div style={{ display: "flex", gap: 4, borderBottom: "0.5px solid var(--color-border-tertiary)", marginBottom: 20 }}>
-          {["about", "reviews"].map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{
-              padding: "8px 20px", fontSize: 13, cursor: "pointer",
-              background: "transparent", border: "none",
-              borderBottom: activeTab === tab ? "2px solid #185FA5" : "2px solid transparent",
-              color: activeTab === tab ? "#185FA5" : "var(--color-text-secondary)",
-              fontWeight: activeTab === tab ? 500 : 400, textTransform: "capitalize",
-            }}>
-              {tab === "reviews" ? `Reviews (${lawyer.reviews?.length || 0})` : "About"}
-            </button>
-          ))}
+        {/* Navigation Tabs */}
+        <div className="d-flex gap-2 border-bottom mb-4">
+          <button
+            onClick={() => setActiveTab("about")}
+            className={`btn btn-sm pb-2 fw-bold rounded-0 border-0 ${
+              activeTab === "about" ? "text-primary border-bottom border-primary border-3" : "text-secondary"
+            }`}
+          >
+            About & Credentials
+          </button>
+          <button
+            onClick={() => setActiveTab("reviews")}
+            className={`btn btn-sm pb-2 fw-bold rounded-0 border-0 ${
+              activeTab === "reviews" ? "text-primary border-bottom border-primary border-3" : "text-secondary"
+            }`}
+          >
+            Client Reviews ({lawyer.reviews?.length || 0})
+          </button>
         </div>
 
-        {/* About tab */}
+        {/* Tab 1: About */}
         {activeTab === "about" && (
-          <div style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 12, padding: "20px 24px" }}>
+          <div className="law-card p-4">
             {lawyer.bio && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>About</div>
-                <p style={{ fontSize: 14, color: "var(--color-text-primary)", lineHeight: 1.7, margin: 0 }}>{lawyer.bio}</p>
+              <div className="mb-4">
+                <h6 className="fw-bold text-dark mb-2">Practice Profile & Experience</h6>
+                <p className="text-secondary leading-relaxed mb-0" style={{ lineHeight: 1.7 }}>
+                  {lawyer.bio}
+                </p>
               </div>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+
+            <h6 className="fw-bold text-dark mb-3">Authentic Bar Verification Overview</h6>
+            <div className="row g-3">
               {[
-                { label: "Bar Council No.", value: lawyer.bar_council_number || "—" },
-                { label: "Specialization", value: lawyer.specialization ? `${lawyer.specialization} Law` : "—" },
-                { label: "Court Level", value: lawyer.court_level ? `${lawyer.court_level} Court` : "—" },
-                { label: "Experience", value: `${lawyer.experience_years} years` },
-                { label: "Location", value: [lawyer.city, lawyer.state].filter(Boolean).join(", ") || "—" },
-                { label: "Email", value: lawyer.email ? <a href={`mailto:${lawyer.email}`} style={{ color: "#185FA5", textDecoration: "none" }}>{lawyer.email}</a> : "—" },
-                { label: "Phone", value: lawyer.phone || "—" },
+                { label: "Bar Council Enrollment ID", value: lawyer.bar_council_number || "Not Recorded" },
+                { label: "Verification Status", value: lawyer.is_verified ? "Official Verified Advocate ✓" : "Pending Verification" },
+                { label: "Specialized Practice", value: `${lawyer.specialization || "General"} Law` },
+                { label: "Primary Court", value: `${lawyer.court_level || "High"} Court` },
+                { label: "Active Jurisdiction", value: [lawyer.city, lawyer.state].filter(Boolean).join(", ") || "All Courts" },
+                { label: "Advocate Seniority", value: lawyer.lawyer_type || "Advocate" },
               ].map(item => (
-                <div key={item.label}>
-                  <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.3 }}>{item.label}</div>
-                  <div style={{ fontSize: 13, color: "var(--color-text-primary)", fontWeight: 500 }}>{item.value}</div>
+                <div key={item.label} className="col-md-6">
+                  <div className="p-3 rounded-3 bg-light border">
+                    <small className="text-muted d-block" style={{ fontSize: "11px" }}>
+                      {item.label}
+                    </small>
+                    <span className="fw-bold text-dark small">{item.value}</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Reviews tab */}
+        {/* Tab 2: Reviews */}
         {activeTab === "reviews" && (
           <div>
-            {/* Submit review — logged in clients only */}
             {user?.role === "CLIENT" && !reviewSuccess && (
-              <div style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 12, padding: "20px 24px", marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 14 }}>Rate this lawyer</div>
-                {reviewError && <div style={{ background: "var(--color-background-danger)", color: "var(--color-text-danger)", padding: "8px 12px", borderRadius: 8, fontSize: 13, marginBottom: 12 }}>{reviewError}</div>}
-                <StarRating rating={reviewForm.rating} interactive onChange={r => setReviewForm(prev => ({ ...prev, rating: r }))} />
-                <textarea placeholder="Share your experience (optional)..." value={reviewForm.comment}
-                  onChange={e => setReviewForm(prev => ({ ...prev, comment: e.target.value }))} rows={3}
-                  style={{ width: "100%", marginTop: 12, padding: "10px 12px", borderRadius: 8, boxSizing: "border-box", border: "0.5px solid var(--color-border-secondary)", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", fontSize: 13, resize: "vertical" }} />
-                <button onClick={handleSubmitReview} disabled={submittingReview || !reviewForm.rating}
-                  style={{ marginTop: 12, padding: "8px 20px", borderRadius: 8, fontSize: 13, background: reviewForm.rating ? "#185FA5" : "var(--color-background-secondary)", color: reviewForm.rating ? "#fff" : "var(--color-text-tertiary)", border: "none", cursor: reviewForm.rating ? "pointer" : "not-allowed", fontWeight: 500 }}>
-                  {submittingReview ? "Submitting..." : "Submit Review"}
+              <div className="law-card p-4 mb-4">
+                <h6 className="fw-bold text-dark mb-2">Leave a Verified Consultation Review</h6>
+                {reviewError && <div className="alert alert-danger py-2">{reviewError}</div>}
+                <div className="mb-3">
+                  <StarRating rating={reviewForm.rating} interactive onChange={r => setReviewForm(p => ({ ...p, rating: r }))} />
+                </div>
+                <textarea
+                  placeholder="Share feedback on advocate responsiveness, counsel clarity, and hearing representation..."
+                  value={reviewForm.comment}
+                  onChange={e => setReviewForm(p => ({ ...p, comment: e.target.value }))}
+                  rows={3}
+                  className="form-control mb-3"
+                />
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={submittingReview || !reviewForm.rating}
+                  className="btn btn-sm btn-primary fw-bold px-4"
+                >
+                  {submittingReview ? "Submitting..." : "Post Review"}
                 </button>
               </div>
             )}
 
-            {/* ✅ Not logged in prompt with /login link */}
-            {!user && (
-              <div style={{ background: "#E6F1FB", borderRadius: 10, padding: "14px 18px", marginBottom: 20, fontSize: 13, color: "#0C447C" }}>
-                <Link to={`/login?redirect=${encodeURIComponent(`/lawyers/${userId}`)}`} style={{ color: "#185FA5", fontWeight: 500 }}>Login</Link> to leave a review for this lawyer.
-              </div>
+            {reviewSuccess && (
+              <div className="alert alert-success">✓ Thank you! Your review has been published.</div>
             )}
 
-            {reviewSuccess && <div style={{ background: "#EAF3DE", color: "#27500A", padding: "12px 16px", borderRadius: 8, fontSize: 13, marginBottom: 16 }}>✓ Review submitted successfully!</div>}
-
-            {!lawyer.reviews?.length && <div style={{ textAlign: "center", padding: "40px 0", color: "var(--color-text-secondary)", fontSize: 13 }}>No reviews yet. Be the first to review!</div>}
-
-            {lawyer.reviews?.map(review => (
-              <div key={review.id} style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 10, padding: "14px 18px", marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#E6F1FB", color: "#0C447C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500 }}>
-                      {review.client_username?.[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{review.client_username}</div>
-                      <StarRating rating={review.rating} />
-                    </div>
-                  </div>
-                  <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>{new Date(review.created_at).toLocaleDateString()}</span>
-                </div>
-                {review.comment && <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.6 }}>{review.comment}</p>}
+            {lawyer.reviews?.length === 0 ? (
+              <div className="law-card p-5 text-center text-muted">
+                No reviews recorded yet for Adv. {lawyer.username}.
               </div>
-            ))}
+            ) : (
+              <div className="d-flex flex-column gap-3">
+                {lawyer.reviews?.map(rev => (
+                  <div key={rev.id} className="law-card p-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <div className="d-flex align-items-center gap-2">
+                        <div
+                          className="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
+                          style={{ width: 32, height: 32, background: "#185FA5", fontSize: 13 }}
+                        >
+                          {rev.client_username?.[0]?.toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="fw-bold text-dark small">{rev.client_username}</div>
+                          <StarRating rating={rev.rating} />
+                        </div>
+                      </div>
+                      <small className="text-muted" style={{ fontSize: "11px" }}>
+                        {new Date(rev.created_at).toLocaleDateString()}
+                      </small>
+                    </div>
+                    {rev.comment && <p className="text-secondary small mb-0">{rev.comment}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
-
       </div>
     </div>
   )
