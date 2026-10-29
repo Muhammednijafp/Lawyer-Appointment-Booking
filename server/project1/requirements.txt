@@ -1,0 +1,11 @@
+Django
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+channels
+daphne
+django-filter
+django-extensions
+razorpay
+reportlab
+asgiref

@@ -1,0 +1,2556 @@
+/* =========================================================
+   LAW — CINEMATIC COURTROOM SCROLL EXPERIENCE
+   ========================================================= */
+
+/* =========================================================
+   MAIN SCROLL CONTAINER
+   ========================================================= */
+
+.legal-scroll-experience {
+    position: relative;
+
+    height: 520vh;
+
+    margin: 0;
+    padding: 0;
+
+    background: #05080d;
+}
+
+.legal-scroll-sticky {
+    position: sticky;
+
+    top: 0;
+
+    width: 100%;
+    height: 100vh;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        #05080d;
+
+    color: #ffffff;
+
+    isolation: isolate;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+.legal-background {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 0;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 25%,
+            rgba(54, 73, 91, 0.4),
+            transparent 42%
+        ),
+
+        radial-gradient(
+            ellipse at 50% 80%,
+            rgba(153, 110, 36, 0.12),
+            transparent 45%
+        ),
+
+        linear-gradient(
+            180deg,
+            #07101a 0%,
+            #0b151e 42%,
+            #030609 100%
+        );
+}
+
+
+/* =========================================================
+   CAMERA
+   ========================================================= */
+
+.legal-camera {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 2;
+
+    transform-origin: center center;
+
+    will-change:
+        transform;
+}
+
+
+/* =========================================================
+   ATMOSPHERIC GOLDEN LIGHT
+   ========================================================= */
+
+.legal-glow {
+    position: absolute;
+
+    left: 50%;
+    top: 45%;
+
+    width: 60vw;
+    height: 60vw;
+
+    max-width: 900px;
+    max-height: 900px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(232, 194, 102, 0.28),
+            rgba(190, 137, 42, 0.08) 40%,
+            transparent 72%
+        );
+
+    filter: blur(45px);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   CINEMATIC LIGHT RAYS
+   ========================================================= */
+
+.light-rays {
+    position: absolute;
+
+    inset: -20%;
+
+    z-index: 3;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+.light-rays span {
+    position: absolute;
+
+    top: -30%;
+
+    width: 18vw;
+    height: 170%;
+
+    opacity: 0.12;
+
+    filter: blur(22px);
+
+    transform-origin: top center;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 226, 150, 0.65),
+            rgba(239, 188, 75, 0.12),
+            transparent
+        );
+}
+
+.light-rays span:nth-child(1) {
+    left: 28%;
+
+    transform:
+        rotate(-22deg);
+}
+
+.light-rays span:nth-child(2) {
+    left: 42%;
+
+    width: 25vw;
+
+    opacity: 0.18;
+
+    transform:
+        rotate(0deg);
+}
+
+.light-rays span:nth-child(3) {
+    left: 55%;
+
+    transform:
+        rotate(22deg);
+}
+
+
+/* =========================================================
+   PARTICLES
+   ========================================================= */
+
+.legal-particles {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 8;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+.legal-particle {
+    position: absolute;
+
+    width: 2px;
+    height: 2px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 224, 150, 0.9);
+
+    box-shadow:
+        0 0 5px rgba(255, 215, 120, 0.8),
+        0 0 14px rgba(232, 185, 68, 0.3);
+
+    animation:
+        courtroomParticle
+        linear infinite;
+}
+
+.legal-particle:nth-child(3n) {
+    width: 3px;
+    height: 3px;
+}
+
+.legal-particle:nth-child(5n) {
+    width: 1px;
+    height: 1px;
+}
+
+@keyframes courtroomParticle {
+
+    0% {
+        transform:
+            translate3d(0, 50px, 0)
+            scale(0.4);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.8;
+    }
+
+    50% {
+        transform:
+            translate3d(20px, -35px, 0)
+            scale(1);
+    }
+
+    80% {
+        opacity: 0.5;
+    }
+
+    100% {
+        transform:
+            translate3d(-18px, -140px, 0)
+            scale(0.2);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.legal-intro {
+    position: absolute;
+
+    left: 50%;
+    top: 14%;
+
+    width: min(900px, 90vw);
+
+    transform:
+        translateX(-50%);
+
+    text-align: center;
+
+    z-index: 20;
+
+    pointer-events: none;
+}
+
+.legal-eyebrow {
+    display: inline-block;
+
+    padding: 9px 22px;
+
+    border:
+        1px solid rgba(231, 197, 107, 0.45);
+
+    border-radius: 999px;
+
+    color: #e7c56f;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    letter-spacing: 4px;
+
+    background:
+        rgba(255, 255, 255, 0.035);
+
+    backdrop-filter:
+        blur(10px);
+
+    box-shadow:
+        0 0 30px rgba(231, 197, 107, 0.06);
+}
+
+.legal-intro h1 {
+    margin: 28px 0 12px;
+
+    font-size:
+        clamp(48px, 7vw, 94px);
+
+    font-weight: 300;
+
+    line-height: 0.95;
+
+    letter-spacing: -4px;
+
+    text-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.6);
+}
+
+.legal-intro h1 span {
+    display: block;
+
+    color: #e5c36d;
+
+    font-weight: 500;
+
+    text-shadow:
+        0 0 30px rgba(229, 195, 109, 0.2);
+}
+
+.legal-intro p {
+    margin-top: 25px;
+
+    color:
+        rgba(255, 255, 255, 0.7);
+
+    font-size: 17px;
+}
+
+.scroll-indicator {
+    margin-top: 35px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color:
+        rgba(255, 255, 255, 0.55);
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+    text-transform: uppercase;
+}
+
+.scroll-indicator span {
+    width: 1px;
+    height: 50px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e4c26b,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   COURTHOUSE
+   ========================================================= */
+
+.courthouse-scene {
+    position: absolute;
+
+    left: 5%;
+    bottom: -25px;
+
+    width: min(900px, 92vw);
+    height: 650px;
+
+    transform:
+        translateX(-50%);
+
+    transform-origin:
+        center bottom;
+
+    perspective: 1200px;
+
+    z-index: 10;
+
+    will-change:
+        transform,
+        opacity;
+}
+
+.courthouse {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    width: 780px;
+    max-width: 92vw;
+
+    height: 520px;
+
+    transform:
+        translateX(-50%);
+
+    transform-style:
+        preserve-3d;
+}
+
+
+/* =========================================================
+   COURTHOUSE ROOF
+   ========================================================= */
+
+.courthouse-roof {
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 0;
+    height: 0;
+
+    border-left:
+        405px solid transparent;
+
+    border-right:
+        405px solid transparent;
+
+    border-bottom:
+        125px solid #dfd5c3;
+
+    filter:
+        drop-shadow(
+            0 18px 25px rgba(0, 0, 0, 0.55)
+        );
+}
+
+.courthouse-roof::after {
+    content: "";
+
+    position: absolute;
+
+    left: -300px;
+    top: 82px;
+
+    width: 600px;
+    height: 7px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #e7cb86,
+            transparent
+        );
+
+    opacity: 0.7;
+}
+
+
+/* =========================================================
+   COURTHOUSE TOP
+   ========================================================= */
+
+.courthouse-top {
+    position: absolute;
+
+    left: 50%;
+    top: 90px;
+
+    transform:
+        translateX(-50%);
+
+    width: 710px;
+    max-width: 84vw;
+
+    height: 105px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e9dab3,
+            #9f8c63
+        );
+
+    border-top:
+        2px solid #f7e8bc;
+
+    box-shadow:
+        0 25px 45px rgba(0, 0, 0, 0.5);
+
+    z-index: 2;
+}
+
+.courthouse-symbol {
+    color: #59451e;
+
+    font-size: 31px;
+
+    line-height: 1;
+}
+
+.courthouse-name {
+    margin-top: 6px;
+
+    color: #332814;
+
+    font-size: 23px;
+
+    font-weight: 700;
+
+    letter-spacing: 10px;
+}
+
+.courthouse-subtitle {
+    margin-top: 5px;
+
+    color:
+        rgba(51, 40, 20, 0.65);
+
+    font-size: 8px;
+
+    letter-spacing: 4px;
+}
+
+
+/* =========================================================
+   COURTHOUSE COLUMNS
+   ========================================================= */
+
+.courthouse-columns {
+    position: absolute;
+
+    left: 50%;
+    top: 185px;
+
+    transform:
+        translateX(-50%);
+
+    width: 710px;
+    max-width: 84vw;
+
+    height: 255px;
+
+    display: flex;
+
+    align-items: stretch;
+
+    justify-content:
+        space-around;
+
+    padding:
+        8px 32px 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #d7c59b,
+            #8e7b55
+        );
+}
+
+.column {
+    position: relative;
+
+    width: 57px;
+    height: 245px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #81704f,
+            #e4d4aa 48%,
+            #887651
+        );
+
+    border-left:
+        4px solid rgba(255, 255, 255, 0.32);
+
+    border-right:
+        5px solid rgba(49, 34, 14, 0.3);
+
+    box-shadow:
+        8px 0 15px rgba(0, 0, 0, 0.25);
+}
+
+.column::before,
+.column::after {
+    content: "";
+
+    position: absolute;
+
+    left: -8px;
+
+    width: calc(100% + 16px);
+
+    height: 10px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e8d8ad,
+            #8f7c57
+        );
+}
+
+.column::before {
+    top: -6px;
+}
+
+.column::after {
+    bottom: -4px;
+}
+
+
+/* =========================================================
+   ENTRANCE
+   ========================================================= */
+
+.courthouse-entrance {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 270px;
+    height: 270px;
+
+    overflow: hidden;
+
+    background:
+        #030405;
+
+    border-top-left-radius:
+        135px;
+
+    border-top-right-radius:
+        135px;
+
+    box-shadow:
+        inset 0 0 55px rgba(0, 0, 0, 0.9),
+        0 20px 45px rgba(0, 0, 0, 0.6);
+
+    z-index: 5;
+}
+
+.entrance-frame {
+    position: absolute;
+
+    inset: 0;
+
+    border:
+        8px solid #6f5930;
+
+    border-top-left-radius:
+        135px;
+
+    border-top-right-radius:
+        135px;
+
+    z-index: 6;
+
+    pointer-events: none;
+}
+
+.courthouse-door {
+    position: absolute;
+
+    top: 0;
+
+    width: 50%;
+    height: 100%;
+
+    z-index: 8;
+
+    background:
+        linear-gradient(
+            90deg,
+            #080a0d,
+            #272b30,
+            #080a0d
+        );
+
+    border:
+        2px solid #a38448;
+
+    box-shadow:
+        inset 0 0 25px rgba(0, 0, 0, 0.8);
+}
+
+.door-left {
+    left: 0;
+
+    transform-origin:
+        left center;
+}
+
+.door-right {
+    right: 0;
+
+    transform-origin:
+        right center;
+}
+
+.courthouse-door::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 12px;
+
+    border:
+        1px solid rgba(222, 191, 116, 0.25);
+}
+
+.door-handle {
+    position: absolute;
+
+    top: 52%;
+
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background:
+        #d4ae5c;
+
+    box-shadow:
+        0 0 12px rgba(229, 193, 104, 0.35);
+}
+
+.door-left .door-handle {
+    right: 14px;
+}
+
+.door-right .door-handle {
+    left: 14px;
+}
+
+.door-light {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 7;
+
+    background:
+        radial-gradient(
+            ellipse at center 72%,
+            rgba(255, 228, 160, 1),
+            rgba(237, 187, 72, 0.5) 28%,
+            rgba(171, 111, 25, 0.15) 55%,
+            transparent 75%
+        );
+
+    filter:
+        blur(8px);
+
+    box-shadow:
+        0 0 100px rgba(238, 185, 61, 0.35);
+}
+
+
+/* =========================================================
+   COURTHOUSE STEPS
+   ========================================================= */
+
+.courthouse-steps {
+    position: absolute;
+
+    left: 50%;
+    bottom: -45px;
+
+    transform:
+        translateX(-50%);
+
+    width: 500px;
+    max-width: 80vw;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    z-index: 4;
+}
+
+.courthouse-steps span {
+    display: block;
+
+    height: 21px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #b8a67e,
+            #5c4d32
+        );
+
+    border-radius: 2px;
+
+    box-shadow:
+        0 5px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+/* =========================================================
+   COURTROOM SCENE
+   ========================================================= */
+
+.courtroom-scene {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 25;
+
+    overflow: hidden;
+
+    transform-origin:
+        center center;
+
+    perspective: 1300px;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 30%,
+            rgba(139, 106, 46, 0.2),
+            transparent 45%
+        ),
+
+        linear-gradient(
+            180deg,
+            #17130f,
+            #0e1114 50%,
+            #050708 100%
+        );
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+/* =========================================================
+   COURTROOM WALL
+   ========================================================= */
+
+.courtroom-wall {
+    position: absolute;
+
+    left: 4%;
+    right: 4%;
+
+    top: 4%;
+    bottom: 22%;
+
+    background:
+        linear-gradient(
+            180deg,
+            #29251f,
+            #15181a
+        );
+
+    border:
+        1px solid rgba(220, 190, 113, 0.12);
+
+    box-shadow:
+        inset 0 0 100px rgba(0, 0, 0, 0.75);
+}
+
+.courtroom-wall::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 12px;
+
+    border:
+        1px solid rgba(223, 190, 107, 0.08);
+}
+
+.court-emblem {
+    position: absolute;
+
+    left: 50%;
+    top: 11%;
+
+    transform:
+        translateX(-50%);
+
+    width: 85px;
+    height: 85px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: #d6b867;
+
+    font-size: 38px;
+
+    border:
+        1px solid rgba(215, 181, 92, 0.35);
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(214, 182, 101, 0.14),
+            rgba(0, 0, 0, 0.25)
+        );
+
+    box-shadow:
+        0 0 40px rgba(216, 183, 91, 0.08);
+}
+
+.court-title {
+    position: absolute;
+
+    left: 50%;
+    top: 29%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(237, 216, 166, 0.75);
+
+    font-size: 10px;
+
+    letter-spacing: 5px;
+}
+
+
+/* =========================================================
+   JUDGE PLATFORM
+   ========================================================= */
+
+.judge-platform {
+    position: absolute;
+
+    left: 50%;
+    top: 25%;
+
+    transform:
+        translateX(-50%);
+
+    width: 390px;
+    height: 18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #765b30,
+            #2a2115
+        );
+
+    box-shadow:
+        0 15px 30px rgba(0, 0, 0, 0.5);
+}
+
+
+/* =========================================================
+   JUDGE
+   ========================================================= */
+
+.judge-area {
+    position: absolute;
+
+    left: 50%;
+    top: 14%;
+
+    transform:
+        translateX(-50%);
+
+    width: 220px;
+    height: 280px;
+
+    z-index: 15;
+
+    text-align: center;
+}
+
+.judge-chair {
+    position: relative;
+
+    width: 155px;
+    height: 205px;
+
+    margin: auto;
+
+    background:
+        linear-gradient(
+            90deg,
+            #21180f,
+            #684b25,
+            #24190e
+        );
+
+    border:
+        2px solid rgba(218, 181, 88, 0.28);
+
+    border-radius:
+        10px 10px 5px 5px;
+
+    box-shadow:
+        0 25px 45px rgba(0, 0, 0, 0.6);
+}
+
+.chair-crown {
+    position: absolute;
+
+    left: 50%;
+    top: 12px;
+
+    transform:
+        translateX(-50%);
+
+    color: #d8b762;
+
+    font-size: 25px;
+}
+
+.judge-person {
+    position: absolute;
+
+    left: 50%;
+    bottom: 12px;
+
+    transform:
+        translateX(-50%);
+
+    width: 110px;
+    height: 155px;
+}
+
+.judge-head {
+    position: absolute;
+
+    left: 50%;
+    top: 8px;
+
+    transform:
+        translateX(-50%);
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #e0b78d,
+            #9b6746
+        );
+}
+
+.judge-body {
+    position: absolute;
+
+    left: 50%;
+    top: 45px;
+
+    transform:
+        translateX(-50%);
+
+    width: 58px;
+    height: 55px;
+
+    border-radius:
+        18px 18px 5px 5px;
+
+    background:
+        #191919;
+}
+
+.judge-robe {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 105px;
+    height: 75px;
+
+    clip-path:
+        polygon(
+            15% 0,
+            85% 0,
+            100% 100%,
+            0 100%
+        );
+
+    background:
+        linear-gradient(
+            90deg,
+            #0b0b0c,
+            #2c2c2e,
+            #09090a
+        );
+}
+
+.judge-name {
+    margin-top: 12px;
+
+    color:
+        rgba(238, 217, 169, 0.55);
+
+    font-size: 8px;
+
+    letter-spacing: 3px;
+}
+
+
+/* =========================================================
+   LAWYER BENCHES
+   ========================================================= */
+
+.lawyer-benches {
+    position: absolute;
+
+    left: 50%;
+    top: 39%;
+
+    transform:
+        translateX(-50%);
+
+    width: min(1050px, 94vw);
+
+    height: 260px;
+
+    z-index: 18;
+}
+
+.court-bench {
+    position: absolute;
+
+    width: 370px;
+    height: 190px;
+
+    bottom: 0;
+}
+
+.bench-left {
+    left: 2%;
+}
+
+.bench-right {
+    right: 2%;
+}
+
+.bench-seat {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 52px;
+
+    height: 32px;
+
+    border-radius: 4px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #765532,
+            #332214
+        );
+
+    box-shadow:
+        0 15px 25px rgba(0, 0, 0, 0.5);
+}
+
+.bench-front {
+    position: absolute;
+
+    left: 6%;
+    right: 6%;
+
+    bottom: 0;
+
+    height: 58px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #24170e,
+            #4d321b,
+            #24170e
+        );
+
+    border:
+        1px solid rgba(208, 168, 82, 0.16);
+}
+
+.lawyer {
+    position: absolute;
+
+    bottom: 74px;
+
+    width: 100px;
+    height: 125px;
+
+    z-index: 3;
+}
+
+.lawyer-one {
+    left: 55px;
+}
+
+.lawyer-two {
+    left: 190px;
+}
+
+.lawyer-three {
+    right: 190px;
+}
+
+.lawyer-four {
+    right: 55px;
+}
+
+.person-head {
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #e0b78d,
+            #805239
+        );
+}
+
+.person-body {
+    position: absolute;
+
+    left: 50%;
+    top: 28px;
+
+    transform:
+        translateX(-50%);
+
+    width: 45px;
+    height: 50px;
+
+    border-radius:
+        12px 12px 4px 4px;
+
+    background:
+        #18191a;
+}
+
+.lawyer-coat {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 75px;
+    height: 60px;
+
+    clip-path:
+        polygon(
+            18% 0,
+            82% 0,
+            100% 100%,
+            0 100%
+        );
+
+    background:
+        linear-gradient(
+            90deg,
+            #111214,
+            #3a3b3e,
+            #111214
+        );
+}
+
+
+/* =========================================================
+   VICTIM / CLIENT
+   ========================================================= */
+
+.court-people {
+    position: absolute;
+
+    left: 50%;
+    top: 58%;
+
+    transform:
+        translateX(-50%);
+
+    width: min(950px, 90vw);
+
+    height: 210px;
+
+    z-index: 22;
+}
+
+.victim-area {
+    position: absolute;
+
+    left: 39%;
+
+    bottom: 0;
+
+    width: 190px;
+    height: 190px;
+
+    text-align: center;
+}
+
+.victim-chair {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 100px;
+    height: 90px;
+
+    border-radius:
+        8px 8px 2px 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #27180e,
+            #654524,
+            #27180e
+        );
+}
+
+.victim-person {
+    position: absolute;
+
+    left: 50%;
+    bottom: 65px;
+
+    transform:
+        translateX(-50%);
+
+    width: 85px;
+    height: 110px;
+}
+
+.victim-head {
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 31px;
+    height: 31px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #e2bb93,
+            #89583d
+        );
+}
+
+.victim-body {
+    position: absolute;
+
+    left: 50%;
+    top: 32px;
+
+    transform:
+        translateX(-50%);
+
+    width: 45px;
+    height: 55px;
+
+    border-radius:
+        15px 15px 5px 5px;
+
+    background:
+        #343a40;
+}
+
+.victim-clothes {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 70px;
+    height: 45px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #252b31,
+            #5b636b,
+            #252b31
+        );
+
+    clip-path:
+        polygon(
+            20% 0,
+            80% 0,
+            100% 100%,
+            0 100%
+        );
+}
+
+.victim-label {
+    position: absolute;
+
+    left: 50%;
+    bottom: -22px;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(224, 191, 110, 0.55);
+
+    font-size: 7px;
+
+    letter-spacing: 2px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   AUDIENCE
+   ========================================================= */
+
+.court-audience {
+    position: absolute;
+
+    right: 4%;
+
+    bottom: 5px;
+
+    display: flex;
+
+    gap: 12px;
+}
+
+.audience-person {
+    position: relative;
+
+    width: 45px;
+    height: 80px;
+}
+
+.audience-person::before {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background:
+        #8d6047;
+}
+
+.audience-person::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    width: 40px;
+    height: 55px;
+
+    border-radius:
+        12px 12px 3px 3px;
+
+    background:
+        #262a2e;
+}
+
+
+/* =========================================================
+   CLERK DESK
+   ========================================================= */
+
+.court-clerk-desk {
+    position: absolute;
+
+    left: 50%;
+    bottom: 10%;
+
+    transform:
+        translateX(-50%);
+
+    width: 420px;
+    height: 105px;
+
+    z-index: 30;
+}
+
+.clerk-desk-top {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 35px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #7a5830,
+            #342315
+        );
+
+    border-radius: 5px;
+
+    box-shadow:
+        0 15px 25px rgba(0, 0, 0, 0.5);
+}
+
+.clerk-document {
+    position: absolute;
+
+    left: 25%;
+
+    top: -13px;
+
+    z-index: 3;
+
+    width: 120px;
+    height: 75px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        #e4d4ad;
+
+    color: #493719;
+
+    font-size: 8px;
+
+    letter-spacing: 1px;
+
+    box-shadow:
+        0 10px 18px rgba(0, 0, 0, 0.35);
+
+    transform:
+        rotate(-3deg);
+}
+
+.clerk-lamp {
+    position: absolute;
+
+    right: 18%;
+
+    top: -10px;
+
+    width: 35px;
+    height: 65px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a57c34,
+            #e2c16d,
+            #795522
+        );
+
+    clip-path:
+        polygon(
+            25% 0,
+            75% 0,
+            100% 40%,
+            60% 40%,
+            60% 100%,
+            40% 100%,
+            40% 40%,
+            0 40%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 15px rgba(244, 198, 91, 0.3)
+        );
+}
+
+
+/* =========================================================
+   COURTROOM FLOOR
+   ========================================================= */
+
+.courtroom-floor {
+    position: absolute;
+
+    left: -10%;
+    right: -10%;
+
+    bottom: -30%;
+
+    height: 50%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #16100b,
+            #5b4023 50%,
+            #16100b
+        );
+
+    transform:
+        perspective(600px)
+        rotateX(58deg);
+
+    transform-origin:
+        center top;
+
+    opacity: 0.85;
+
+    box-shadow:
+        inset 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+
+/* =========================================================
+   CASE DOCUMENT
+   ========================================================= */
+
+.case-document-scene {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 40;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+
+    transform-origin:
+        center center;
+}
+
+.document-glow {
+    position: absolute;
+
+    width: 600px;
+    height: 600px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(235, 193, 92, 0.22),
+            transparent 70%
+        );
+
+    filter:
+        blur(35px);
+}
+
+.document-page {
+    position: absolute;
+
+    width: min(500px, 75vw);
+    height: 610px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #cfc09e,
+            #a99b7c
+        );
+
+    border-radius: 3px;
+
+    box-shadow:
+        0 35px 70px rgba(0, 0, 0, 0.45);
+}
+
+.document-page-back {
+    transform:
+        translate(45px, 40px)
+        rotate(7deg);
+
+    z-index: -3;
+}
+
+.document-page-middle {
+    transform:
+        translate(24px, 20px)
+        rotate(4deg);
+
+    z-index: -2;
+}
+
+.case-document {
+    position: relative;
+
+    width: min(500px, 75vw);
+    min-height: 610px;
+
+    padding: 42px 45px;
+
+    color: #252016;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f3ead2,
+            #d9caa6
+        );
+
+    border-radius: 3px;
+
+    box-shadow:
+        0 45px 100px rgba(0, 0, 0, 0.65);
+
+    overflow: hidden;
+}
+
+.case-document::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(70, 50, 20, 0.025),
+            rgba(70, 50, 20, 0.025) 1px,
+            transparent 1px,
+            transparent 5px
+        );
+
+    pointer-events: none;
+}
+
+.case-document::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 5px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #8b692d,
+            #e1c676,
+            #76541e
+        );
+}
+
+.document-top-line {
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    padding-bottom: 18px;
+
+    border-bottom:
+        1px solid rgba(70, 50, 20, 0.25);
+}
+
+.document-top-line span {
+    color: #856a32;
+
+    font-size: 8px;
+
+    letter-spacing: 3px;
+}
+
+.document-top-line strong {
+    font-size: 13px;
+
+    letter-spacing: 2px;
+}
+
+.document-seal {
+    margin:
+        28px auto 12px;
+
+    width: 60px;
+    height: 60px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(111, 82, 29, 0.5);
+
+    border-radius: 50%;
+
+    color: #8b6a2f;
+
+    font-size: 25px;
+}
+
+.case-document h2 {
+    margin: 0;
+
+    text-align: center;
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size: 25px;
+
+    letter-spacing: 3px;
+}
+
+.case-number {
+    margin-top: 9px;
+
+    text-align: center;
+
+    color: #77602e;
+
+    font-size: 10px;
+
+    letter-spacing: 2px;
+}
+
+.document-information {
+    margin-top: 35px;
+}
+
+.document-information > div {
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items: center;
+
+    padding:
+        14px 0;
+
+    border-bottom:
+        1px solid rgba(70, 50, 20, 0.14);
+}
+
+.document-information span {
+    color: #81652e;
+
+    font-size: 8px;
+
+    letter-spacing: 2px;
+}
+
+.document-information strong {
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+.status-active {
+    padding:
+        5px 10px;
+
+    border:
+        1px solid rgba(102, 74, 27, 0.5);
+
+    border-radius: 999px;
+
+    font-size: 8px !important;
+
+    letter-spacing: 2px;
+}
+
+.document-lines {
+    margin-top: 30px;
+}
+
+.document-lines span {
+    display: block;
+
+    height: 3px;
+
+    margin-top: 12px;
+
+    background:
+        rgba(70, 50, 20, 0.16);
+}
+
+.document-lines span:nth-child(2) {
+    width: 82%;
+}
+
+.document-lines span:nth-child(3) {
+    width: 91%;
+}
+
+.document-lines span:nth-child(4) {
+    width: 67%;
+}
+
+.document-lines span:nth-child(5) {
+    width: 88%;
+}
+
+.document-footer {
+    position: absolute;
+
+    left: 45px;
+    right: 45px;
+
+    bottom: 38px;
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-end;
+}
+
+.document-footer > span {
+    color: #84692f;
+
+    font-size: 7px;
+
+    letter-spacing: 2px;
+}
+
+.signature-line {
+    width: 120px;
+
+    padding-bottom: 6px;
+
+    border-bottom:
+        1px solid rgba(60, 45, 22, 0.5);
+
+    color: #6c562c;
+
+    font-size: 7px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   CASE TIMELINE
+   ========================================================= */
+
+.case-timeline-scene {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 42;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(31, 48, 62, 0.35),
+            transparent 65%
+        );
+}
+
+.timeline-heading {
+    position: absolute;
+
+    left: 8%;
+    top: 22%;
+
+    max-width: 390px;
+}
+
+.timeline-heading > span {
+    color: #d8b968;
+
+    font-size: 9px;
+
+    letter-spacing: 4px;
+}
+
+.timeline-heading h2 {
+    margin-top: 13px;
+
+    color: white;
+
+    font-size:
+        clamp(35px, 5vw, 65px);
+
+    line-height: 1;
+
+    font-weight: 300;
+
+    text-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.case-timeline {
+    position: absolute;
+
+    left: 55%;
+
+    top: 14%;
+
+    width: 470px;
+
+    height: 73%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content:
+        space-between;
+}
+
+.timeline-line {
+    position: absolute;
+
+    left: 18px;
+
+    top: 20px;
+    bottom: 20px;
+
+    width: 2px;
+
+    background:
+        rgba(218, 188, 106, 0.18);
+
+    overflow: hidden;
+}
+
+.timeline-line-progress {
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ecd07c,
+            #9b762d
+        );
+
+    transform-origin:
+        top center;
+
+    box-shadow:
+        0 0 15px rgba(232, 199, 112, 0.4);
+}
+
+.timeline-item {
+    position: relative;
+
+    min-height: 70px;
+
+    padding-left: 60px;
+}
+
+.timeline-dot {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: #19140b;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    background:
+        radial-gradient(
+            circle,
+            #ead07f,
+            #a87f2f 45%,
+            #201a0f 48%,
+            #090c10 58%
+        );
+
+    box-shadow:
+        0 0 20px rgba(225, 190, 94, 0.2);
+
+    z-index: 2;
+}
+
+.timeline-content > span {
+    color: #9f8245;
+
+    font-size: 8px;
+
+    letter-spacing: 3px;
+}
+
+.timeline-content strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #f2ede2;
+
+    font-size: 17px;
+
+    font-weight: 500;
+}
+
+.timeline-content p {
+    margin-top: 5px;
+
+    color:
+        rgba(255, 255, 255, 0.48);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   FINAL FADE
+   ========================================================= */
+
+.final-animation-fade {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 48;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 15%,
+            rgba(0, 0, 0, 0.35) 70%,
+            #020304 100%
+        );
+}
+
+
+/* =========================================================
+   SCROLL PROGRESS
+   ========================================================= */
+
+.legal-progress {
+    position: absolute;
+
+    left: 50%;
+    bottom: 24px;
+
+    transform:
+        translateX(-50%);
+
+    width: 180px;
+    height: 2px;
+
+    background:
+        rgba(255, 255, 255, 0.15);
+
+    z-index: 100;
+}
+
+.legal-progress span {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    transform-origin:
+        left center;
+
+    background:
+        #e4c26b;
+
+    box-shadow:
+        0 0 8px rgba(228, 194, 107, 0.35);
+}
+
+
+/* =========================================================
+   VIGNETTE
+   ========================================================= */
+
+.legal-scroll-sticky::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 60;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 38%,
+            rgba(0, 0, 0, 0.25) 72%,
+            rgba(0, 0, 0, 0.75) 100%
+        );
+}
+
+.legal-scroll-sticky::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 61;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.35),
+            transparent 25%,
+            transparent 72%,
+            rgba(0, 0, 0, 0.45)
+        );
+}
+
+
+/* =========================================================
+   PERFORMANCE
+   ========================================================= */
+
+.courthouse-scene,
+.courtroom-scene,
+.case-document-scene,
+.case-timeline-scene,
+.legal-intro,
+.legal-glow,
+.legal-particles {
+    will-change:
+        transform,
+        opacity;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .legal-scroll-experience {
+        height: 480vh;
+    }
+
+    .legal-intro {
+        top: 11%;
+    }
+
+    .legal-intro h1 {
+        font-size: 52px;
+
+        letter-spacing:
+            -2px;
+    }
+
+    .legal-intro p {
+        padding:
+            0 20px;
+
+        font-size: 14px;
+    }
+
+    .courthouse-scene {
+        width: 100vw;
+
+        height: 500px;
+
+        bottom: 0;
+    }
+
+    .courthouse {
+        transform:
+            translateX(-50%)
+            scale(0.64);
+
+        transform-origin:
+            center bottom;
+    }
+
+    .courtroom-wall {
+        left: 0;
+        right: 0;
+    }
+
+    .court-emblem {
+        width: 60px;
+        height: 60px;
+
+        font-size: 25px;
+    }
+
+    .court-title {
+        font-size: 7px;
+
+        letter-spacing: 3px;
+    }
+
+    .judge-area {
+        top: 12%;
+
+        transform:
+            translateX(-50%)
+            scale(0.72);
+    }
+
+    .lawyer-benches {
+        top: 39%;
+
+        width: 100vw;
+
+        transform:
+            translateX(-50%)
+            scale(0.72);
+
+        transform-origin:
+            center top;
+    }
+
+    .court-people {
+        top: 62%;
+
+        width: 100vw;
+
+        transform:
+            translateX(-50%)
+            scale(0.75);
+    }
+
+    .court-clerk-desk {
+        bottom: 8%;
+
+        width: 300px;
+
+        transform:
+            translateX(-50%)
+            scale(0.72);
+    }
+
+    .case-document {
+        width: 80vw;
+
+        min-height: 510px;
+
+        padding:
+            30px 27px;
+    }
+
+    .document-page {
+        width: 80vw;
+
+        height: 510px;
+    }
+
+    .document-information > div {
+        padding:
+            11px 0;
+    }
+
+    .document-information strong {
+        font-size: 10px;
+    }
+
+    .document-footer {
+        left: 27px;
+        right: 27px;
+        bottom: 28px;
+    }
+
+    .timeline-heading {
+        left: 7%;
+        top: 11%;
+    }
+
+    .timeline-heading h2 {
+        font-size: 38px;
+    }
+
+    .case-timeline {
+        left: 7%;
+        top: 38%;
+
+        width: 86%;
+        height: 52%;
+    }
+
+    .timeline-content strong {
+        font-size: 14px;
+    }
+
+    .timeline-content p {
+        font-size: 10px;
+    }
+
+    .light-rays span {
+        width: 25vw;
+
+        opacity: 0.08;
+    }
+
+    .legal-progress {
+        bottom: 15px;
+
+        width: 130px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .legal-scroll-experience {
+        height: auto;
+    }
+
+    .legal-scroll-sticky {
+        position: relative;
+
+        height: 100vh;
+    }
+
+    .legal-particle {
+        animation: none;
+    }
+
+    .light-rays {
+        display: none;
+    }
+}
